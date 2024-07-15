@@ -37,18 +37,16 @@ def check_farming_status(cookies):
     status_code = make_post_request('https://game.scroo-g.com/api/miner:list', cookies)
     return status_code == 200
 
-# Function to crack eggs and accumulate points
-def crack_eggs(cookies, max_points, account_index, total_accounts):
+# Function to crack eggs with a time limit
+def crack_eggs(cookies, account_index, total_accounts, time_limit_minutes):
     game_id = 347063
     total_points = 0
     actions_list = ["tap"] * 3 + ["tap-x2"]  # Majority are "tap" (3 times more likely)
+    end_time = datetime.now() + timedelta(minutes=time_limit_minutes)
 
-    while total_points < max_points:
+    while datetime.now() < end_time:
         action = random.choice(actions_list)
         points = 1 if action == "tap" else 2
-        if total_points + points > max_points:
-            points = max_points - total_points  # Ensure we do not exceed the max_points
-
         payload = {
             "game_id": game_id,
             "actions": [action]
@@ -57,6 +55,7 @@ def crack_eggs(cookies, max_points, account_index, total_accounts):
         if status_code == 200:
             total_points += points
         print(f"Account {account_index}/{total_accounts}: Crack eggs action: {action}, Points: {total_points}, Status code: {status_code}")
+        time.sleep(random.uniform(0.5, 2))  # Random delay between actions
 
 # Main function to process accounts
 def process_accounts():
@@ -64,7 +63,7 @@ def process_accounts():
     num_accounts = len(cookies_list)
     print(f"Total accounts found: {num_accounts}")
 
-    max_points_per_day = 50000
+    time_limit_minutes = 30  # 30-minute time limit per account
 
     for idx, cookies in enumerate(cookies_list, start=1):
         cookies = cookies.strip()
@@ -77,8 +76,8 @@ def process_accounts():
         else:
             print(f"Account {idx}/{num_accounts}: Failed to claim farming reward or already claimed.")
 
-        # Crack eggs to reach 50,000 points
-        crack_eggs(cookies, max_points_per_day, idx, num_accounts)
+        # Crack eggs within the time limit
+        crack_eggs(cookies, idx, num_accounts, time_limit_minutes)
 
         # Adding 5-second delay between account switches
         if idx < num_accounts:
