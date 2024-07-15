@@ -47,7 +47,7 @@ def crack_eggs(cookies, max_points):
         action = random.choice(actions_list)
         points = 1 if action == "tap" else 2
         if total_points + points > max_points:
-            break
+            points = max_points - total_points  # Ensure we do not exceed the max_points
 
         payload = {
             "game_id": game_id,
@@ -64,6 +64,8 @@ def process_accounts():
     num_accounts = len(cookies_list)
     print(f"Total accounts found: {num_accounts}")
 
+    max_points_per_day = 50000
+
     for idx, cookies in enumerate(cookies_list, start=1):
         cookies = cookies.strip()
         print(f"Processing account {idx}/{num_accounts}")
@@ -76,7 +78,6 @@ def process_accounts():
             print("Failed to claim farming reward or already claimed.")
 
         # Crack eggs to reach 50,000 points
-        max_points_per_day = 50000
         crack_eggs(cookies, max_points_per_day)
 
         # Adding 5-second delay between account switches
