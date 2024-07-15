@@ -56,7 +56,7 @@ def crack_eggs(cookies, max_points):
         status_code = make_post_request('https://game.scroo-g.com/api/game:failing-eggs:action', cookies, payload)
         if status_code == 200:
             total_points += points
-        print(f"Crack eggs action: {action}, Points: {total_points}, Status code: {status_code}")
+        print(f"Crack eggs account {idx}/{num_accounts} : {action}, Points: {total_points}, Status code: {status_code}")
 
 # Main function to process accounts
 def process_accounts():
