@@ -37,20 +37,26 @@ def check_farming_status(cookies):
     status_code = make_post_request('https://game.scroo-g.com/api/miner:list', cookies)
     return status_code == 200
 
-# Function to crack eggs
-def crack_eggs(cookies):
+# Function to crack eggs and accumulate points
+def crack_eggs(cookies, max_points):
     game_id = 347063
+    total_points = 0
     actions_list = ["tap"] * 3 + ["tap-x2"]  # Majority are "tap" (3 times more likely)
-    num_actions = random.randint(1, 10)  # Random number of actions
 
-    for _ in range(num_actions):
+    while total_points < max_points:
         action = random.choice(actions_list)
+        points = 1 if action == "tap" else 2
+        if total_points + points > max_points:
+            break
+
         payload = {
             "game_id": game_id,
             "actions": [action]
         }
         status_code = make_post_request('https://game.scroo-g.com/api/game:failing-eggs:action', cookies, payload)
-        print(f"Crack eggs action: {action}, Status code: {status_code}")
+        if status_code == 200:
+            total_points += points
+        print(f"Crack eggs action: {action}, Points: {total_points}, Status code: {status_code}")
 
 # Main function to process accounts
 def process_accounts():
@@ -69,8 +75,9 @@ def process_accounts():
         else:
             print("Failed to claim farming reward or already claimed.")
 
-        # Crack eggs
-        crack_eggs(cookies)
+        # Crack eggs to reach 50,000 points
+        max_points_per_day = 50000
+        crack_eggs(cookies, max_points_per_day)
 
         # Adding 5-second delay between account switches
         if idx < num_accounts:
